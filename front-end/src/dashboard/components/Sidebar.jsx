@@ -26,7 +26,7 @@ export default function Sidebar() {
             <div className="sidebar pe-4 pb-3">
                 <nav className="navbar bg-light navbar-light">
                     <Link to="/super-admin" className="navbar-brand mx-4 mb-3">
-                        <h3 className="text-primary"><i className="fa fa-hashtag me-2"></i>DASHMIN</h3>
+                        <h3 className="text-primary"><i className="fa fa-hashtag me-2"></i>Farmhouse</h3>
                     </Link>
 
                     <div className="navbar-nav w-100">
@@ -45,9 +45,20 @@ export default function Sidebar() {
                                 <NavLink to="/super-admin/view-farmhouses" className={({ isActive }) => `nav-item nav-link ${isActive ? 'active' : ''}`}>
                                     <i className="fas fa-eye me-2"></i>View Farmhouses
                                 </NavLink>
-                                {/* <Link to="button.html" className="dropdown-item">Buttons</Link>
-                                <Link to="typography.html" className="dropdown-item">Typography</Link>
-                                <Link to="element.html" className="dropdown-item">Other Elements</Link> */}
+                            </div>
+                        </div>
+                        <div className="nav-item dropdown">
+                            <Link to="#" className="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                <i className="fas fa-house me-2"></i>
+                                User Management
+                            </Link>
+                            <div className="dropdown-menu bg-transparent border-0">
+                                <NavLink to="/super-admin/add-users" className={({ isActive }) => `nav-item nav-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fas fa-plus me-2"></i>Add User
+                                </NavLink>
+                                <NavLink to="/super-admin/view-users" className={({ isActive }) => `nav-item nav-link ${isActive ? 'active' : ''}`}>
+                                    <i className="fas fa-eye me-2"></i>View Users
+                                </NavLink>
                             </div>
                         </div>
                         <Link to="form.html" className="nav-item nav-link"><i className="fa fa-keyboard me-2"></i>Forms</Link>

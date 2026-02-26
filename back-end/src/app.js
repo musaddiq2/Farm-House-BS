@@ -8,6 +8,8 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+// Serve uploaded files at /uploads URL (so frontend can request /uploads/<filename>)
+app.use("/uploads", express.static("uploads"));
 
 // Routes
 app.use("/api/users", userRoutes);

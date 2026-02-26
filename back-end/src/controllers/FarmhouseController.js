@@ -6,34 +6,73 @@ export const FarmhouseCreate = async (req, res) => {
             name,
             adminId,
             description,
-            location: { address, city, state, pincode },
-            capacity: { minGuests, maxGuests },
-            pricing: { fullDay },
+            address,
+            city,
+            state,
+            pincode,
+            minGuests: minGuestsInput,
+            maxGuests: maxGuestsInput,
+            fullDay: fullDayInput,
+            hourly: hourlyInput,
+            multiDay: multiDayInput,
+            amenities,
+            foodOptions,
+            rules,
             instantBooking,
-            rules: { petsAllowed, alcoholAllowed, smokingAllowed }
+            minBookingDuration,
+            maxBookingDuration,
+            advanceBookingDays
         } = req.body;
+
+        const minGuests = Number(minGuestsInput);
+        const maxGuests = Number(maxGuestsInput);
+        const fullDay = Number(fullDayInput);
+        const hourly = hourlyInput ? Number(hourlyInput) : undefined;
+        const multiDay = multiDayInput ? Number(multiDayInput) : undefined;
+
+        // Process uploaded files safely
+        const images = req.filesrimages?.map((file, index) => ({
+            url: file.filename,
+            publicId: file.filename,
+            order: index
+        })) || [];
+
+        const videos = req.files?.video?.[0] ? [{
+            url: req.files.video[0].filename,
+            publicId: req.files.video[0].filename
+        }] : [];
 
         // Generate slug from name
         const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
 
         // Validate the data
-        if (!name || !description || !address || !city || !state || !pincode || !minGuests || !maxGuests || !fullDay) {
-            return res.status(400).json({ message: 'Missing required fields' });
+        const requiredFields = ['name', 'description', 'address', 'city', 'state', 'pincode'];
+        const missingFields = requiredFields.filter(field => !req.body[field]);
+
+        if (missingFields.length > 0) {
+            return res.status(400).json({
+                message: `Missing required fields: ${missingFields.join(', ')}`,
+            });
         }
 
-        if (typeof minGuests !== 'number' || typeof maxGuests !== 'number' || typeof fullDay !== 'number') {
-            return res.status(400).json({ message: 'Invalid data types' });
+        if (!minGuests || !maxGuests) {
+            return res.status(400).json({ message: 'Missing required capacity fields' });
         }
 
-        if (typeof petsAllowed !== 'boolean' || typeof alcoholAllowed !== 'boolean' || typeof smokingAllowed !== 'boolean') {
-            return res.status(400).json({ message: 'Invalid data types' });
+        if (typeof minGuests !== 'number' || typeof maxGuests !== 'number') {
+            return res.status(400).json({ message: 'Invalid capacity data types' });
         }
-        
+
+        if (!fullDay || (typeof fullDay !== 'number')) {
+            return res.status(400).json({ message: 'Missing or invalid full day pricing data' });
+        }
+
+
         // Create a new instance of the Farmhouse model
         const farmhouse = new Farmhouse({
             name,
             slug,
-            adminId: adminId,
+            adminId,
             description,
             location: {
                 address,
@@ -41,25 +80,42 @@ export const FarmhouseCreate = async (req, res) => {
                 state,
                 pincode
             },
+            images,
+            videos,
+            amenities: {
+                name: amenities?.name || '',
+                icon: amenities?.icon || '',
+                available: amenities?.available || true
+            },
             capacity: {
-                minGuests,
-                maxGuests
+                minGuests: minGuests,
+                maxGuests: maxGuests
             },
             pricing: {
-                fullDay
+                fullDay,
+                hourly,
+                multiDay
             },
-            instantBooking,
-            rules: {
-                petsAllowed,
-                alcoholAllowed,
-                smokingAllowed
-            }
+            amenities: amenities || [],
+            foodOptions: foodOptions || [],
+            rules: rules || {
+                petsAllowed: false,
+                alcoholAllowed: false,
+                smokingAllowed: false
+            },
+            instantBooking: instantBooking || false,
+            minBookingDuration,
+            maxBookingDuration,
+            advanceBookingDays
         });
 
         // Save the instance to the database
         await farmhouse.save();
 
-        return res.status(201).json({ message: 'Farmhouse created successfully' });
+        return res.status(201).json({
+            message: 'Farmhouse created successfully',
+            data: farmhouse
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -79,3 +135,96 @@ export const ViewFarmhouses = async (req, res) => {
     }
 }
 
+export const EditFarmhouse = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const farmhouse = await Farmhouse.findById(id);
+
+        if (!farmhouse || farmhouse.isDeleted) {
+            return res.status(404).json({ message: 'Farmhouse not found' });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Farmhouse retrieved successfully',
+            data: farmhouse
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+export const UpdateFarmhouse = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const farmhouse = await Farmhouse.findById(id);
+        if (!farmhouse) {
+            return res.status(404).json({ message: 'Farmhouse not found' });
+        }
+        const updates = req.body;
+        // Find the farmhouse by ID and update it
+        const updatedFarmhouse = await Farmhouse.findByIdAndUpdate(id, updates, { new: true });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Farmhouse updated successfully',
+            data: updatedFarmhouse
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+export const SoftDeleteFarmhouse = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const farmhouse = await Farmhouse.findById(id);
+        if (!farmhouse) {
+            return res.status(404).json({ message: 'Farmhouse not found' });
+        }
+
+        if (farmhouse.isDeleted) {
+            return res.status(400).json({ message: 'Farmhouse is already deleted' });
+        }
+
+        // Soft delete: set isDeleted flag and deletedAt timestamp
+        const deletedFarmhouse = await Farmhouse.findByIdAndUpdate(
+            id,
+            {
+                isDeleted: true,
+                deletedAt: new Date()
+            },
+            { new: true }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: 'Farmhouse deleted successfully',
+            data: deletedFarmhouse
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+export const updateStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+
+        if (!["approved", "rejected", "inactive"].includes(status)) {
+            return res.status(400).json({ message: "Invalid status" });
+        }
+
+        const farmhouse = await Farmhouse.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true }
+        );
+
+        res.json({ message: "Status updated", farmhouse });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

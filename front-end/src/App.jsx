@@ -6,6 +6,7 @@ import AddFarmhouse from "./dashboard/pages/AddFarmhouse";
 import Login from "./public/pages/Login";
 import ViewFarmhouse from "./dashboard/pages/ViewFarmhouse";
 import Home from "./public/pages/Home";
+import Register from "./public/pages/Register";
 
 function App() {
   return (
@@ -15,9 +16,11 @@ function App() {
         <Route path="/super-admin" element={<DashboardLayout />}>
           <Route index element={<DashboardHome />} />
           <Route path="add-farmhouses" element={<AddFarmhouse />} />
+          <Route path="edit-farmhouse/:id" element={<AddFarmhouse />} />
           <Route path="view-farmhouses" element={<ViewFarmhouse />} />
         </Route>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/" element={<Home />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

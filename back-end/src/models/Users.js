@@ -21,10 +21,6 @@ const userSchema = new Schema({
     phone: {
         type: String,
     },
-    profilePicture: {
-        type: String,
-        default: ''
-    },
     role: {
         type: String,
         enum: ['admin', 'superadmin'],

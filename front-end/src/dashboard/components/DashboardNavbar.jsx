@@ -33,7 +33,7 @@ const DashboardNavbar = () => {
           <div className="nav-item dropdown">
             <Link to="#" className="nav-link dropdown-toggle" data-bs-toggle="dropdown">
               <img className="rounded-circle me-lg-2" src="img/user.jpg" alt="" />
-              <span className="d-none d-lg-inline-flex">{user.user.firstName + " " + user.user.lastName}</span>
+              <span className="d-none d-lg-inline-flex">{user != null && user.user.firstName + " " + user.user.lastName }</span>
             </Link>
             <div className="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
               <Link to="#" className="dropdown-item">My Profile</Link>

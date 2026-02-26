@@ -27,10 +27,10 @@ const farmhouseSchema = new Schema({
         city: { type: String, index: true },
         state: String,
         pincode: String,
-        coordinates: {
-            lat: Number,
-            lng: Number
-        }
+        // coordinates: {
+        //     lat: Number,
+        //     lng: Number
+        // }
     },
 
     images: [{
@@ -42,7 +42,7 @@ const farmhouseSchema = new Schema({
 
     videos: [{
         url: String,
-        publicId: String
+        // publicId: String
     }],
 
     amenities: [{
@@ -57,39 +57,34 @@ const farmhouseSchema = new Schema({
     },
 
     pricing: {
-        hourly: {
-            '4hr': Number,
-            '6hr': Number,
-            '8hr': Number,
-            '12hr': Number
-        },
+        hourly: Number,
         fullDay: Number,
         multiDay: Number,
         weekendMultiplier: { type: Number, default: 1 },
-        seasonalRates: [{
-            season: String,
-            startDate: Date,
-            endDate: Date,
-            multiplier: Number
-        }]
+        // seasonalRates: [{
+        //     season: String,
+        //     startDate: Date,
+        //     endDate: Date,
+        //     multiplier: Number
+        // }]
     },
 
-    foodOptions: [{
-        meal: String,
-        available: Boolean,
-        price: Number,
-        menu: String
-    }],
+    // foodOptions: [{
+    //     meal: String,
+    //     available: Boolean,
+    //     price: Number,
+    //     menu: String
+    // }],
 
     rules: {
-        checkInTime: String,
-        checkOutTime: String,
-        cancellationPolicy: String,
-        securityDeposit: Number,
+        // checkInTime: String,
+        // checkOutTime: String,
+        // cancellationPolicy: String,
+        // securityDeposit: Number,
         petsAllowed: { type: Boolean, default: false },
         alcoholAllowed: { type: Boolean, default: false },
         smokingAllowed: { type: Boolean, default: false },
-        customRules: [String]
+        // customRules: [String]
     },
 
     availability: [{
@@ -116,7 +111,10 @@ const farmhouseSchema = new Schema({
     },
 
     totalBookings: { type: Number, default: 0 },
-    views: { type: Number, default: 0 }
+    views: { type: Number, default: 0 },
+
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null }
 
 }, {
     timestamps: true

@@ -131,7 +131,7 @@ const Login = () => {
           {/* Sign Up Link */}
           <p className="text-center mb-0">
             Don't have an account?{' '}
-            <a href="/signup" className="text-decoration-none fw-medium">
+            <a href="/register" className="text-decoration-none fw-medium">
               Sign Up
             </a>
           </p>
