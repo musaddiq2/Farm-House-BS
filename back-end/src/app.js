@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import userRoutes from "./routes/UserRoutes.js";
 import FarmhouseRoutes from "./routes/FarmhouseRoutes.js";
+import SuperAdminRoutes from "./routes/SuperAdminRoutes.js";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use("/uploads", express.static("uploads"));
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/farmhouses", FarmhouseRoutes);
+app.use("/api/superadmin", SuperAdminRoutes);
 
 // Default route
 app.get("/", (req, res) => {
