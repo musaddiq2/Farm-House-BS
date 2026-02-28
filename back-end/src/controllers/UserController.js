@@ -68,6 +68,11 @@ export const loginUser = async (req, res) => {
             return res.status(400).json({ message: "Invalid password" });
         }
 
+        // prevent login if account is blocked
+        if (user.isActive === false) {
+            return res.status(403).json({ message: "Account is blocked" });
+        }
+
         // 3. Generate token
         const token = jwt.sign(
             { id: user._id, role: user.role },
@@ -134,3 +139,107 @@ export const updateUserProfile = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// ----- Superadmin-only admin management -----
+
+/**
+ * @desc Create a new admin account
+ * @route POST /api/superadmin/admins
+ */
+export const createAdmin = async (req, res) => {
+    try {
+        const { firstName, lastName, email, password, phone } = req.body;
+
+        if (!firstName || !lastName || !email || !password) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const existing = await User.findOne({ email });
+        if (existing) {
+            return res.status(400).json({ message: "Email already in use" });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashed = await bcrypt.hash(password, salt);
+
+        const admin = await User.create({
+            firstName,
+            lastName,
+            email,
+            password: hashed,
+            phone,
+            role: 'admin',
+            isActive: true,
+        });
+
+        res.status(201).json({
+            message: "Admin account created",
+            admin: {
+                id: admin._id,
+                firstName: admin.firstName,
+                lastName: admin.lastName,
+                email: admin.email,
+                role: admin.role,
+                isActive: admin.isActive,
+            },
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/**
+ * @desc Get list of admin users
+ * @route GET /api/superadmin/admins
+ */
+export const getAllAdmins = async (req, res) => {
+    try {
+        const admins = await User.find({ role: 'admin' }).select('-password');
+        res.json({ count: admins.length, admins });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/**
+ * @desc Block an admin account
+ * @route PUT /api/superadmin/admins/:id/block
+ */
+export const blockAdmin = async (req, res) => {
+    try {
+        const admin = await User.findOne({ _id: req.params.id, role: 'admin' });
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+        if (admin.isActive === false) {
+            return res.status(400).json({ message: "Admin already blocked" });
+        }
+        admin.isActive = false;
+        await admin.save();
+        res.json({ message: "Admin blocked", admin: { id: admin._id, isActive: admin.isActive } });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/**
+ * @desc Unblock an admin account
+ * @route PUT /api/superadmin/admins/:id/unblock
+ */
+export const unblockAdmin = async (req, res) => {
+    try {
+        const admin = await User.findOne({ _id: req.params.id, role: 'admin' });
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+        if (admin.isActive === true) {
+            return res.status(400).json({ message: "Admin already active" });
+        }
+        admin.isActive = true;
+        await admin.save();
+        res.json({ message: "Admin unblocked", admin: { id: admin._id, isActive: admin.isActive } });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
