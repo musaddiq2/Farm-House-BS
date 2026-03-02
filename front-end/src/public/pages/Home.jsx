@@ -1,16 +1,17 @@
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import Navbar from "../components/Navbar";
+import Hero from "../components/Hero";
+// import Featured from "../components/Featured";
+import WhyChoose from "../components/WhyChoose";
+import Footer from "../components/Footer";
 
-const Home = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    navigate('/login');
-  }, []);
-  
+export default function Home() {
   return (
-    <div>Home</div>
-  )
+    <>
+      <Navbar />
+      <Hero />
+      {/* <Featured /> */}
+      <WhyChoose />
+      <Footer />
+    </>
+  );
 }
-
-export default Home

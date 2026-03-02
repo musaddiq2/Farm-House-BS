@@ -1,0 +1,35 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Poppins', sans-serif;
+}
+
+.hero-section {
+    height: 100vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.55),
+            rgba(0, 0, 0, 0.55)),
+        url("https://images.unsplash.com/photo-1500382017468-9049fed747ef");
+    background-size: cover;
+    background-position: center;
+}
+
+.search-box {
+    background: white;
+    border-radius: 20px;
+}
+
+.farm-card img {
+    height: 240px;
+    object-fit: cover;
+    border-radius: 16px 16px 0 0;
+}
+
+.farm-card {
+    border-radius: 16px;
+    transition: 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.farm-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
+}
